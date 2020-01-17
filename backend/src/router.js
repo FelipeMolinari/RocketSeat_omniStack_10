@@ -1,5 +1,7 @@
 const { Router } = require('express')
 const devController = require('./controllers/devController')
+const searchController = require('./controllers//searchController')
+
 const routes = Router()
 
 // Métodos HTTP get, post, put, delete
@@ -10,6 +12,9 @@ const routes = Router()
 //Body: request.body
 
 
+routes.get('/search', searchController.index)
+routes.get('/devs', devController.index)
 routes.post('/devs', devController.store)
-
+routes.put('/devs/:github_username', devController.update)
+routes.delete('/devs/:github_username', devController.delete)
 module.exports = routes 

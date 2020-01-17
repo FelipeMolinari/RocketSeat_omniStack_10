@@ -1,7 +1,16 @@
 const axios = require('axios')
 const Dev = require('../models/Dev')
+const parseStringAsArray = require('../utils/parseStringAsArray')
+
+// index, show, store, update, delete
 
 module.exports = {
+
+    async index(request, response){
+        const devs = await Dev.find()
+        return response.json(devs)
+    },
+
     async store(request, response) {
     
         
@@ -14,7 +23,7 @@ module.exports = {
         
             const {name = login, avatar_url, bio} = apiResponse.data
         
-            const techsArray = techs.split(',').map(tech => tech.trim())
+            const techsArray = parseStringAsArray(techs)
         
             const location = {
                 type: "Point",
@@ -31,5 +40,37 @@ module.exports = {
         
         }
         return response.json(dev)
+    },
+
+    async update(request, response){
+        const {github_username} = request.params
+
+        let indexDev = await Dev.findOne({github_username})
+
+        if(!indexDev) return response.status(204).json()
+
+        const {techs, github_avatarUrl, latitude, longitude} = request.body
+
+        const techsAsArray = parseStringAsArray(techs)
+
+        const location = {
+            type: "Point",
+            coordinates: [longitude, latitude]
+        }
+
+        indexDev.techs = techsAsArray
+        indexDev.github_avatarUrl = github_avatarUrl
+        indexDev.location = location
+        
+        return response.json(indexDev)
+        
+    },
+
+    async delete(request, response){
+        const {github_username} = request.params
+        
+        const listDevs = await Dev.deleteOne({github_username})
+        return response.json(listDevs)
+       
     }
 }

@@ -1,10 +1,13 @@
 import React from 'react'
 import { useEffect, useState } from 'react'
-import { StyleSheet, Image, Text, View, TextInput, TouchableOpacity, Keyboard } from 'react-native'
+import { StyleSheet, Image, Text, View, TextInput, TouchableOpacity } from 'react-native'
 import MapView, { Marker, Callout } from 'react-native-maps'
 import { requestPermissionsAsync, getCurrentPositionAsync }  from 'expo-location'
 import {MaterialIcons} from '@expo/vector-icons'
 import api from '../services/api'
+import {connect, disconnect, subscribeToNewDevs} from '../services/socket'
+
+
 
 function Main({ navigation }) {
     const [techs, setTechs] = useState('')
@@ -33,6 +36,21 @@ function Main({ navigation }) {
         loadInitialPosition()
     }, [])
 
+    useEffect(()=>{
+        subscribeToNewDevs(dev => setDevs([...devs, dev]))
+    }, [devs])
+    function setupWebSocket(){
+
+        disconnect()
+        const {latitude, longitude} = currentRegion
+
+        
+        connect(
+            latitude,
+            longitude,
+            techs,
+            )
+    }
     async function loadDev(){
         const {latitude, longitude} = currentRegion
 
@@ -43,8 +61,10 @@ function Main({ navigation }) {
                 techs,
             }
         })
-        console.log(response.data.devs)
+        
+        
         setDevs(response.data.devs)
+        setupWebSocket()
     }
 
     function handleRegionChanged(region){

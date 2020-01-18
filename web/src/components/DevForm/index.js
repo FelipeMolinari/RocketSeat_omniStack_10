@@ -26,14 +26,13 @@ function DevForm({ onSubmit }) {
 
     async function handleSubmit(e) {
         e.preventDefault()
-        
+        setGitHubUsername(github_username.trim())
         await onSubmit({
             github_username,
             techs,
             latitude,
             longitude
         })
-        console.log(github_username)
         setGitHubUsername('')
         setTechs('')
 
